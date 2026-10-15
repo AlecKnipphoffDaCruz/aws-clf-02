@@ -11,11 +11,12 @@ Resumo completo para a certificação **AWS Certified Cloud Practitioner (CLF-C0
 
 ## O que tem dentro
 
-- **27 seções**, da seção 0 (como a prova funciona) até a 26 (pares de serviços que a prova troca), organizadas pelos domínios do exame.
+- **28 seções**, da seção 0 (como a prova funciona) até a 27 (revisão dos erros de simulado), organizadas pelos domínios do exame.
 - **Tabelas de "pista no enunciado"**: para cada serviço, as palavras que costumam aparecer na questão quando ele é a resposta.
 - **Caixas de Pegadinha** nos pontos onde as alternativas se parecem: Multi-AZ x Read Replica, CloudTrail x Config, SQS x SNS, Shield x WAF e muitos outros.
-- **Diagramas em Mermaid** (o GitHub renderiza direto): infraestrutura global, VPC em três camadas, peering x Transit Gateway, camadas de proteção, pipeline de analytics e fan-out com SNS e SQS.
-- **Planos de suporte atualizados para 2026**: Business Support+, Enterprise Support e Unified Operations, junto com a tabela dos planos legados, que deixam de existir em 1º de janeiro de 2027.
+- **Diagramas em Mermaid** (o GitHub renderiza direto): fases do CAF, infraestrutura global, responsabilidade compartilhada, access keys x key pair, formas de lançar EC2, classes do S3, VPC em três camadas, família Connect, camadas de proteção, CloudWatch x CloudTrail, Cost Explorer x CUR, pipeline de analytics, família Code e fan-out com SNS e SQS.
+- **Planos de suporte atualizados para 2026**: Basic, Business Support+, Enterprise Support e Unified Operations.
+- **Questões no estilo da prova** com resposta comentada (escondida até você clicar) e uma **revisão de simulado** com os erros mais comuns.
 - **Avisos de nomes e serviços que mudaram** (Data Firehose, QLDB, Pinpoint, CodeCommit, Free Tier de 2025), para não estranhar quando o simulado usar o nome antigo.
 
 ## Peso dos domínios
@@ -31,7 +32,7 @@ Resumo completo para a certificação **AWS Certified Cloud Practitioner (CLF-C0
 
 1. **Primeira leitura:** leia na ordem, uma seção por sessão de estudo. Os domínios 2 e 3 valem 64% da prova; dê mais tempo a eles.
 2. **Simulados:** a cada questão errada, volte à seção correspondente e procure a pista que você não viu.
-3. **Véspera:** releia só as caixas de **Pegadinha**, a seção 26 e a tabela de palavras-gatilho no final.
+3. **Véspera:** releia só as caixas de **Pegadinha**, a seção 26, a tabela de palavras-gatilho e a seção 27.
 
 ## Avisos
 

@@ -3,7 +3,7 @@
 > Revisão pré-prova, organizada pelos 4 domínios do guia oficial.
 > Última revisão: outubro de 2026 · [English version](../en/clf-c02-study-guide.md)
 
-**Como usar:** leia na ordem uma vez, depois revise só as caixas de **Pegadinha** e a [seção 26](#26-pegadinhas-pares-que-a-prova-troca) na véspera.
+**Como usar:** leia na ordem uma vez, depois revise só as caixas de **Pegadinha**, a [seção 26](#26-pegadinhas-pares-que-a-prova-troca) e a [seção 27](#27-revisão-do-simulado) na véspera.
 
 ## Sumário
 
@@ -36,6 +36,7 @@
 | 24 | [Planos de suporte](#24-planos-de-suporte) | 4 |
 | 25 | [Outros serviços que aparecem](#25-outros-serviços-que-aparecem) | 3 |
 | 26 | [Pegadinhas: pares que a prova troca](#26-pegadinhas-pares-que-a-prova-troca) | Todos |
+| 27 | [Revisão do simulado](#27-revisão-do-simulado) | Todos |
 | | [Fontes](#fontes) | |
 
 ---
@@ -167,11 +168,35 @@ O **AWS Cloud Adoption Framework (CAF)** organiza a jornada de adoção em 6 per
 | Operações (Operations) | Capacidades técnicas | Entregar os serviços no nível combinado com o negócio | Líderes de infraestrutura, SREs |
 
 - **Benefícios do CAF:** menor risco de negócio, melhor desempenho ESG, mais receita, mais eficiência operacional.
-- **Fases de transformação:** Envision, Align, Launch, Scale.
+- **Fases de transformação:** Envision, Align, Launch e Scale, detalhadas logo abaixo.
 - **Domínios de transformação:** tecnologia, processo, organização e produto.
 
 > [!WARNING]
 > **Pegadinha:** capacitar e treinar equipes é **Pessoas**, não Governança. Gestão financeira da nuvem (FinOps) é **Governança**, não Negócio.
+
+### As 4 fases da jornada de transformação
+
+As fases são iterativas: depois de Scale, o ciclo recomeça com novas oportunidades. A prova descreve a atividade e pede a fase.
+
+```mermaid
+flowchart LR
+    E["<b>Envision</b><br/>mostrar como a nuvem<br/>acelera o negócio"] --> A["<b>Align</b><br/>lacunas de capacidade,<br/>dependências e preocupações"]
+    A --> L["<b>Launch</b><br/>pilotos em produção<br/>e valor incremental"]
+    L --> S["<b>Scale</b><br/>expandir pilotos até<br/>a escala desejada"]
+    S -. "iterativo: o ciclo recomeça" .-> E
+    style L stroke-width:3px
+    style S stroke-width:3px
+```
+
+| Fase | Foco | Pista no enunciado |
+|---|---|---|
+| Envision | Mostrar como a nuvem vai acelerar os resultados do negócio e priorizar oportunidades | "visão", "oportunidades de transformação" |
+| Align | Identificar lacunas de capacidade nas perspectivas do CAF, dependências entre áreas e preocupações dos stakeholders | "lacunas", "dependências", "preocupações" |
+| Launch | Entregar pilotos em produção, demonstrar valor incremental e aprender antes de escalar | "pilotos em produção", "valor incremental", "insights para escalar" |
+| Scale | Expandir os pilotos e o valor de negócio até a escala desejada e garantir que os benefícios se sustentem | "expandir", "escala desejada", "benefícios sustentados" |
+
+> [!WARNING]
+> **Pegadinha:** Launch e Scale falam de pilotos e de valor. **Launch** coloca o piloto em produção e prova valor incremental; **Scale** pega o que deu certo e expande. "Coletar insights para escalar no futuro" ainda é **Launch**.
 
 ### Os 7 Rs de migração
 
@@ -285,6 +310,27 @@ A AWS responde pela segurança **da** nuvem; o cliente responde pela segurança 
 
 ### A linha muda conforme o serviço
 
+Quanto mais gerenciado o serviço, menos camadas sobram para o cliente:
+
+```mermaid
+block-beta
+    columns 4
+    h0["Camada"] h1["EC2 (IaaS)"] h2["RDS (gerenciado)"] h3["S3, DynamoDB (abstraído)"]
+    c1["Dados do cliente"] e1["Cliente"] r1["Cliente"] s1["Cliente"]
+    c2["IAM, permissões e criptografia"] e2["Cliente"] r2["Cliente"] s2["Cliente"]
+    c3["Regras de rede (Security Group)"] e3["Cliente"] r3["Cliente"] s3["AWS"]
+    c4["Aplicação, runtime e engine"] e4["Cliente"] r4["AWS"] s4["AWS"]
+    c5["SO e patches"] e5["Cliente"] r5["AWS"] s5["AWS"]
+    c6["Hipervisor"] e6["AWS"] r6["AWS"] s6["AWS"]
+    c7["Hardware, rede e data center"] e7["AWS"] r7["AWS"] s7["AWS"]
+    classDef cli fill:#dbeafe,stroke:#2563eb
+    classDef aws fill:#f3f4f6,stroke:#9ca3af
+    class e1,e2,e3,e4,e5,r1,r2,r3,s1,s2 cli
+    class e6,e7,r4,r5,r6,r7,s3,s4,s5,s6,s7 aws
+```
+
+Segurança **na** nuvem é do cliente; segurança **da** nuvem é da AWS. Dados e IAM nunca saem da mão do cliente. Lambda segue a coluna do S3, mas o código da função continua sendo do cliente.
+
 | Tipo de serviço | Exemplo | Quem cuida do SO e dos patches | O que sobra para o cliente |
 |---|---|---|---|
 | Infraestrutura | EC2 | Cliente | SO, patches, aplicação, firewall, dados, IAM |
@@ -363,6 +409,67 @@ Sobre as chaves de acesso:
 - Faça rotação periódica e apague as que não são usadas.
 - Em EC2, Lambda e ECS, use **role** em vez de chave. O **AWS STS** entrega credenciais temporárias por trás das roles.
 - Não confunda com **par de chaves do EC2** (login SSH na instância) nem com **chaves do KMS** (criptografia).
+
+### Duas portas: API da AWS x dentro da instância
+
+Access keys e key pair abrem portas diferentes. A access key autentica chamadas à API da AWS; o key pair do EC2 só serve para entrar no sistema operacional da instância.
+
+```mermaid
+flowchart BT
+    U1["CLI, SDK e chamadas de API"] --> K1["<b>Access keys</b><br/>Access Key ID + Secret Key"] --> P1["<b>Porta 1: API da AWS</b><br/>criar bucket, listar instâncias"]
+    U2["SSH (Linux) e RDP (Windows)"] --> K2["<b>EC2 key pair</b><br/>.pem, chave pública e privada"] --> P2["<b>Porta 2: dentro da máquina</b><br/>terminal ou desktop da EC2"]
+    U3["Navegador"] --> K3["<b>Usuário e senha</b><br/>mais MFA"] --> P3["<b>Console web</b><br/>o oposto de programático"]
+    style K1 stroke-width:3px
+    style K2 stroke-width:3px
+```
+
+Leia de baixo para cima: quem usa, a credencial que apresenta e a porta que ela abre. Código rodando dentro da AWS (EC2, Lambda) deve usar IAM role, com credenciais temporárias, no lugar de access keys.
+
+| Credencial | Abre | Usada por | Não serve para |
+|---|---|---|---|
+| Access keys (Access Key ID + Secret Access Key) | API da AWS | AWS CLI, SDKs (boto3, SDK para Java) e chamadas diretas à API | Entrar na instância por SSH ou RDP |
+| EC2 key pair (.pem) | Sistema operacional da instância | SSH no Linux; descriptografar a senha do RDP no Windows | Autenticar chamadas à API da AWS |
+| SSH keys em geral | Servidores | SSH. Na AWS, aparecem em casos pontuais, como acessar o CodeCommit por SSH | Acesso programático aos serviços |
+| Usuário, senha e MFA | AWS Management Console | Navegador | Acesso programático |
+
+Como decidir na prova:
+
+| A pergunta fala de | Resposta |
+|---|---|
+| Automatizar, script, código, CLI, API | Access keys (+ SDK ou CLI) |
+| Entrar na instância EC2, conectar por SSH ou RDP | Key pair |
+| Interface web, login com usuário, senha e MFA | Console |
+| Código rodando em EC2 ou Lambda que precisa chamar a AWS | IAM role |
+
+> [!TIP]
+> **Regra mnemônica:** access key acessa a API da AWS; key pair abre a porta da máquina.
+
+- As boas práticas das access keys estão logo acima: nunca no código, nunca do root, rotação e preferência por roles.
+- O AWS CLI também usa access keys. Se ele aparecer como opção de acesso programático, está correto.
+- Session Manager e EC2 Instance Connect entram na instância sem gerenciar key pair nem abrir a porta 22 (seção 11).
+
+#### Questão no estilo da prova
+
+**Quais dois itens são necessários para acessar os serviços da AWS de forma programática, por código? (Escolha dois.)**
+
+- A) Access keys
+- B) AWS SDK
+- C) AWS Management Console
+- D) EC2 key pairs
+- E) SSH keys
+
+<details>
+<summary>Resposta</summary>
+
+**A e B.**
+
+- **Access keys:** são a credencial para chamar a API por código ou linha de comando. Obrigatórias no acesso programático.
+- **AWS SDK:** é a biblioteca que usa a AWS dentro do código. Obrigatório, porque a pergunta fala em código.
+- **Management Console:** é a interface web, o oposto de programático.
+- **EC2 key pairs:** servem para entrar na instância. Não autenticam chamadas à API.
+- **SSH keys:** mesmo conceito da porta 2, acesso a servidores. É a alternativa que mais engana.
+
+</details>
 
 ### Boas práticas cobradas
 
@@ -499,6 +606,8 @@ Dois estados para proteger: **em repouso** (dado gravado em disco) e **em trâns
 
 > [!WARNING]
 > **Pegadinha:** KMS é **chave**; Secrets Manager é **segredo** (senha). Entre Secrets Manager e Parameter Store, a palavra "rotação automática" decide por **Secrets Manager**. Entre KMS e CloudHSM, "dedicado" ou "single-tenant" decide por **CloudHSM**. ACM não criptografa dado em repouso.
+
+**Onde guardar certificados SSL/TLS:** o **ACM** é o padrão: emite certificados públicos e importa os de terceiros. O **IAM** também guarda certificados de servidor, para Regions em que o ACM não está disponível. KMS guarda chaves, não certificados. Em "onde fazer upload de certificado SSL (escolha dois)", a resposta é **ACM e IAM**.
 
 ---
 
@@ -639,7 +748,7 @@ A prova pede a família pelo cenário, não o nome exato da instância. Instânc
 - **EC2 Instance Savings Plans:** maior desconto, preso a uma família em uma Region.
 
 > [!WARNING]
-> **Pegadinha:** "não pode ser interrompida" elimina **Spot**. "Uso constante por 1 a 3 anos" pede **RI ou Savings Plan**. "Flexibilidade para mudar de tipo de instância e de serviço" pede **Compute Savings Plan**. "Licença por núcleo" pede **Dedicated Host**, não Dedicated Instance.
+> **Pegadinha:** "não pode ser interrompida" elimina **Spot**. "Uso constante por 1 a 3 anos" pede **RI ou Savings Plan**. "Flexibilidade para mudar de tipo de instância e de serviço" pede **Compute Savings Plan**, assim como "desconto automático em qualquer Region, família, tamanho, SO ou tenancy". "Licença por núcleo" pede **Dedicated Host**, não Dedicated Instance.
 
 ### Peças ao redor do EC2
 
@@ -662,7 +771,138 @@ A prova pede a família pelo cenário, não o nome exato da instância. Instânc
 > [!NOTE]
 > **Elastic IP:** muitos simulados ainda usam a regra antiga, "Elastic IP só é cobrado quando não está associado a uma instância em execução". Se a questão pedir para evitar custo desnecessário, a resposta continua sendo liberar Elastic IPs sem uso.
 
-**Cobrança:** instância **parada** não paga computação, mas continua pagando o EBS (e o IPv4 público, se tiver Elastic IP). Instância **terminada** não paga nada, e por padrão apaga o volume raiz.
+**Cobrança:** instância **parada** não paga computação, mas continua pagando o EBS (e o IPv4 público, se tiver Elastic IP). Instância **terminada** não paga nada, e por padrão apaga o volume raiz. Volumes EBS **adicionais** sobrevivem e continuam cobrando, a menos que o atributo `DeleteOnTermination` esteja ligado. **Running** cobra por segundo, com mínimo de 1 minuto; **pending** não cobra.
+
+### Formas de lançar uma instância
+
+A AMI não lança nada: ela é o molde e responde "com o quê?". Quem cria a instância é sempre o serviço EC2. CloudFormation, Launch Template, Auto Scaling e Beanstalk respondem "como e quando?" e fazem o pedido à API do EC2.
+
+```mermaid
+flowchart LR
+    subgraph Q["Quem pede: como e quando?"]
+        C1["Console, CLI e SDK"]
+        C2["Auto Scaling<br/>(usa um Launch Template)"]
+        C3["Elastic Beanstalk<br/>(PaaS: cria EC2, ELB e ASG)"]
+        C4["<b>CloudFormation</b><br/>(template JSON/YAML ou CDK)"]
+        C5["Service Catalog<br/>(produto aprovado vira stack)"] --> C4
+    end
+    C1 & C2 & C3 & C4 --> API["<b>API do EC2</b><br/>quem cria"]
+    API -- cria --> I["Instância EC2<br/>user data roda no 1º boot"]
+    AMI["AMI (o molde)<br/>SO, software e configuração<br/>regional, copiável"] -- "com o quê?" --> API
+    IB["EC2 Image Builder"] --> AMI
+    MP["Marketplace e Community"] --> AMI
+    style API stroke-width:3px
+    style C4 stroke-width:3px
+```
+
+O caminho completo de um lançamento por código é: template do CloudFormation → CloudFormation (quem pede) → API do EC2 (quem cria) → AMI (o molde). O Lightsail fica fora desse fluxo: entrega um servidor simples, com preço fixo e console próprio.
+
+| Mecanismo | Papel | O que a prova cobra |
+|---|---|---|
+| AMI | Molde: SO, software e configuração prontos | Tipos: da AWS, do Marketplace (pagas, de terceiros), Community e Custom (criada a partir de uma instância sua). É regional, mas pode ser copiada para outras Regions. Serve para vários servidores idênticos e boot mais rápido |
+| Launch Template | Parâmetros de lançamento salvos: AMI, tipo de instância, key pair, Security Group, user data | Tem versões. É o que o Auto Scaling usa para saber o que lançar. O **Launch Configuration** é o antecessor, hoje legado |
+| User data | Script que roda no primeiro boot | Exemplo clássico: instalar e iniciar o Apache |
+| AWS CloudFormation | Infraestrutura como código: descreve EC2, VPC, RDS, S3 e o resto em template JSON ou YAML e cria tudo como uma **stack** | Repetível em várias contas e Regions, versionável, **rollback automático** se algo falhar, **drift detection** para achar mudanças manuais. O serviço é gratuito; paga-se só pelos recursos criados |
+| AWS CDK | Infraestrutura escrita em Java, Python ou TypeScript | É convertido em template do CloudFormation |
+| AWS Elastic Beanstalk | PaaS que provisiona EC2, load balancer, Auto Scaling e monitoramento a partir do código | Você mantém o controle dos recursos. Detalhes na [seção 12](#12-outros-serviços-de-computação) |
+| Amazon Lightsail | VPS simples com preço mensal fixo | Inclui instância, armazenamento, rede, DNS e **blueprints** prontos, como WordPress e LAMP. Detalhes na [seção 12](#12-outros-serviços-de-computação) |
+| EC2 Image Builder | Automatiza criação, teste e atualização de AMIs | "Manter imagens com patches em dia" |
+| AWS Marketplace | Software e AMIs prontos de terceiros | Cobrança na fatura da AWS |
+| AWS Service Catalog | Catálogo de produtos aprovados pela empresa | Os times lançam sozinhos só o que a TI liberou |
+| Console, CLI e SDK | Formas de falar com a API | Manual, linha de comando ou código ([seção 25](#25-outros-serviços-que-aparecem)) |
+
+> [!WARNING]
+> **Pegadinha:** o Launch Template aponta para uma AMI e acrescenta tipo, rede e chaves; não são a mesma coisa. Auto Scaling não substitui o Launch Template, ele usa o template. User data instala software a cada nova instância, no boot; AMI customizada já vem com tudo instalado, por isso sobe mais rápido. CloudFormation provisiona qualquer infraestrutura; Beanstalk sobe uma aplicação.
+
+#### Cola rápida
+
+| Palavra-chave na prova | Serviço |
+|---|---|
+| Servidor pré-configurado e idêntico, replicar instância | AMI |
+| Copiar a imagem para outra Region | Cópia de AMI |
+| Salvar parâmetros de lançamento | Launch Template |
+| Rodar script ao iniciar a instância | User data |
+| Infraestrutura inteira como código, repetível | CloudFormation |
+| Detectar alteração manual na infraestrutura | CloudFormation drift detection |
+| Infraestrutura como código em linguagem de programação | CDK |
+| Subir código sem gerenciar infraestrutura | Elastic Beanstalk |
+| Servidor simples, barato, preço fixo | Lightsail |
+| Lançar e derrubar instâncias conforme a demanda | Auto Scaling |
+| Automatizar criação e atualização de imagens | EC2 Image Builder |
+| Só produtos aprovados pela TI | Service Catalog |
+
+#### Questões no estilo da prova
+
+**1.** Uma empresa precisa lançar dezenas de servidores com o mesmo sistema operacional, patches e software já instalados, e quer que eles fiquem prontos o mais rápido possível. O que ela deve usar?
+
+- A) User data que instala tudo no primeiro boot
+- B) Uma AMI customizada
+- C) Amazon Lightsail
+- D) AWS Elastic Beanstalk
+
+<details>
+<summary>Resposta</summary>
+
+**B.** A AMI já carrega o software instalado, então o boot é rápido e as instâncias saem idênticas. O user data reinstala tudo em cada instância nova, o que é mais lento.
+
+</details>
+
+**2.** Um time quer criar a mesma VPC, instâncias EC2 e banco RDS em três Regions, de forma automatizada, repetível e com controle de versão. Qual serviço atende?
+
+- A) Launch Template
+- B) AWS CloudFormation
+- C) AWS Elastic Beanstalk
+- D) EC2 Image Builder
+
+<details>
+<summary>Resposta</summary>
+
+**B.** CloudFormation descreve a infraestrutura inteira em template e cria uma stack igual em cada Region. Launch Template cobre só a instância, não VPC nem RDS.
+
+</details>
+
+**3.** Um desenvolvedor quer publicar uma aplicação web Java enviando só o código. A AWS deve cuidar de servidores, load balancer e escala, mas ele quer poder acessar esses recursos se precisar. Qual serviço usar?
+
+- A) Amazon Lightsail
+- B) AWS CloudFormation
+- C) AWS Elastic Beanstalk
+- D) Amazon EC2 com Dedicated Hosts
+
+<details>
+<summary>Resposta</summary>
+
+**C.** "Enviar o código e a AWS cuida do resto", mantendo o controle dos recursos, é a definição do Beanstalk.
+
+</details>
+
+**4.** Quais duas informações podem ser salvas em um Launch Template? (Escolha duas.)
+
+- A) O ID da AMI
+- B) A senha do usuário root da conta
+- C) O script de user data
+- D) Uma Service Control Policy
+- E) Uma regra do AWS WAF
+
+<details>
+<summary>Resposta</summary>
+
+**A e C.** O Launch Template guarda AMI, tipo de instância, key pair, Security Group e user data.
+
+</details>
+
+**5.** Uma pequena empresa, sem experiência em nuvem, quer hospedar um site WordPress com custo mensal previsível e o mínimo de configuração. Qual é a melhor opção?
+
+- A) Amazon EC2 com Reserved Instances
+- B) Amazon Lightsail
+- C) AWS Elastic Beanstalk
+- D) AWS CloudFormation
+
+<details>
+<summary>Resposta</summary>
+
+**B.** Lightsail tem preço mensal fixo, console simplificado e blueprint pronto de WordPress.
+
+</details>
 
 ---
 
@@ -785,7 +1025,17 @@ São três tipos: **objeto** (S3), **bloco** (EBS e instance store) e **arquivo*
 
 ### Classes de armazenamento do S3
 
-Da mais quente para a mais fria:
+Da mais quente para a mais fria. Quanto mais à direita, mais barato guardar e mais lento (e caro) recuperar:
+
+```mermaid
+flowchart LR
+    IT["<b>Intelligent-Tiering</b><br/>move o objeto sozinho entre camadas<br/>(acesso imprevisível)"]
+    STD["<b>Standard</b><br/>imediato<br/>sem mínimo"] --> SIA["<b>Standard-IA</b><br/>imediato<br/>mín. 30 dias"] --> OZ["<b>One Zone-IA</b><br/>imediato<br/>1 AZ, 30 dias"] --> GIR["<b>Glacier Instant</b><br/>milissegundos<br/>mín. 90 dias"] --> GFR["<b>Glacier Flexible</b><br/>minutos a horas<br/>mín. 90 dias"] --> DA["<b>Deep Archive</b><br/>12 a 48 horas<br/>mín. 180 dias"]
+    IT -.- STD
+    style IT stroke-width:3px
+```
+
+Todas têm 11 noves de durabilidade. Regras de lifecycle movem objetos da esquerda para a direita.
 
 | Classe | Acesso | Recuperação | Permanência mínima | Quando usar |
 |---|---|---|---|---|
@@ -1043,6 +1293,52 @@ Uma Site-to-Site VPN usa um **Virtual Private Gateway** (ou Transit Gateway) no 
 > [!WARNING]
 > **Pegadinha:** CloudFront **faz cache** de conteúdo (HTTP). Global Accelerator **não faz cache**; ele otimiza o caminho de rede e dá IP fixo. Route 53 é DNS: decide para onde o nome aponta, mas o tráfego não passa por ele.
 
+- **Route 53 faz:** resolução DNS, registro de domínios, roteamento (latência, failover, geolocalização) e health checks. Não filtra tráfego web (WAF), não protege contra DDoS (Shield) e não coleta métricas (CloudWatch).
+- **Origin Access Control (OAC):** faz o CloudFront acessar o bucket S3 com requisições autenticadas, para que os usuários só cheguem aos arquivos pelo CloudFront e nunca direto pelo bucket. É a resposta para "restringir o acesso ao conteúdo do S3 servido pelo CloudFront". Substitui o antigo Origin Access Identity (OAI).
+
+### Nomes parecidos: a família Connect
+
+Só dois serviços ligam o data center à AWS: **Site-to-Site VPN** e **Direct Connect**. Os outros têm nome parecido e fazem outra coisa.
+
+```mermaid
+flowchart TB
+    DC["Data center<br/>on-premises"]
+    RU["Funcionário remoto"]
+    AD["Administrador"]
+    subgraph AWS
+        TGW["Transit Gateway<br/>hub, não cria o link"]
+        subgraph VPC
+            EC2["Instância EC2"]
+        end
+        TGW <--> EC2
+    end
+    DC == "Site-to-Site VPN" ==> TGW
+    DC == "Direct Connect" ==> TGW
+    RU -- "Client VPN:<br/>liga pessoas" --> EC2
+    AD -- "EC2 Instance Connect:<br/>SSH na máquina" --> EC2
+    subgraph NAO["Nome parecido, outra coisa: não são rede"]
+        AC["Amazon Connect<br/>central de atendimento"]
+        DS["AWS Directory Service<br/>Active Directory gerenciado"]
+    end
+    EC2 ~~~ NAO
+```
+
+Amazon Connect e Directory Service ficam num grupo à parte de propósito: não são serviços de rede. O Transit Gateway só chega ao data center por cima de uma VPN ou de um Direct Connect.
+
+| Serviço | O que faz | Liga o on-premises à AWS? |
+|---|---|---|
+| AWS Site-to-Site VPN | Túnel IPsec criptografado, pela internet, entre o data center e a AWS | **Sim** |
+| AWS Direct Connect | Fibra dedicada e privada até a AWS | **Sim** |
+| AWS Transit Gateway | Hub que roteia entre VPCs e redes locais | Não sozinho: precisa de uma VPN ou de um Direct Connect por baixo |
+| AWS Client VPN | VPN para usuários individuais, em notebooks | Liga pessoas, não o data center |
+| EC2 Instance Connect | SSH na instância pelo console ou CLI, com chave temporária | Não: é acesso a uma máquina |
+| Amazon Connect | Central de atendimento na nuvem: telefone e chat | Não: não é serviço de rede |
+| AWS Directory Service | Microsoft Active Directory gerenciado | Não: é diretório de usuários |
+| Amazon AppFlow | Integração de dados entre SaaS e AWS | Não |
+
+> [!WARNING]
+> **Pegadinha:** em "conectar o ambiente on-premises à AWS (escolha dois)", marque **Site-to-Site VPN e Direct Connect**. Transit Gateway só é a resposta quando a pergunta fala em hub central para muitas VPCs e redes.
+
 ---
 
 ## 18. Bancos de dados e cache
@@ -1163,9 +1459,9 @@ flowchart LR
 
 > [!WARNING]
 > **Pegadinha, em uma linha cada:**
-> - SQL sobre o S3, sem servidor: **Athena**.
+> - SQL direto sobre o S3: **Athena** (serverless) ou **Redshift Spectrum** (a partir do Redshift, sem carregar os dados).
 > - Data warehouse: **Redshift**.
-> - ETL: **Glue**.
+> - ETL: **Glue**. Não é tempo real; streaming em tempo real é **Kinesis**.
 > - Hadoop e Spark: **EMR**.
 > - Streaming em tempo real: **Kinesis**.
 > - Painéis: **QuickSight**.
@@ -1301,7 +1597,7 @@ Detalhes cobrados:
 Categorias de verificação: **otimização de custos, desempenho, segurança, tolerância a falhas, limites de serviço e excelência operacional**.
 
 - No suporte Basic, só um conjunto básico de verificações (segurança essencial e limites de serviço).
-- O conjunto completo e o acesso por API exigem Business Support+, Enterprise ou Unified Operations (no modelo legado, Business ou superior).
+- O conjunto completo e o acesso por API exigem Business Support+, Enterprise ou Unified Operations.
 - Exemplos de achado: bucket S3 aberto, Security Group com porta liberada para o mundo, root sem MFA, instância ociosa, Elastic IP sem uso, volume EBS sem snapshot.
 
 ### AWS Health Dashboard
@@ -1312,6 +1608,34 @@ Categorias de verificação: **otimização de custos, desempenho, segurança, t
 
 > [!WARNING]
 > **Pegadinha:** CloudWatch monitora **desempenho**; CloudTrail registra **ações**; Config registra **configuração**; X-Ray rastreia **requisições**. "A AWS está fora do ar?" é **Health Dashboard**, não CloudWatch. "Alertar quando a fatura passar de um valor" pode ser billing alarm do CloudWatch ou AWS Budgets; **Budgets** é a resposta preferida quando as duas aparecem.
+
+### CloudWatch x CloudTrail
+
+Os dois não competem: o CloudWatch acompanha o **comportamento** dos recursos, o CloudTrail registra as **ações** feitas na conta. O mesmo incidente aparece nos dois, cada um com uma parte da história.
+
+```mermaid
+flowchart TB
+    INC["<b>A instância web sumiu às 14h02</b><br/>o mesmo evento visto pelos dois serviços"]
+    INC --> CW["<b>Amazon CloudWatch</b><br/>Métrica: CPU caiu de 70% para 0%<br/>Alarme: status check falhou, aviso via SNS<br/>Logs da aplicação pararam às 14h02"]
+    INC --> CT["<b>AWS CloudTrail</b><br/>Quem: usuário IAM joao.silva<br/>Ação: TerminateInstances, pelo console<br/>Quando e de onde: 14h02, IP de origem"]
+    CW --> Q1["Como o recurso está?"]
+    CT --> Q2["Quem fez o quê?"]
+```
+
+| Aspecto | Amazon CloudWatch | AWS CloudTrail |
+|---|---|---|
+| Pergunta que responde | Como o recurso está se comportando? | Quem fez o quê, quando e de onde? |
+| O que registra | Métricas, logs de aplicação, alarmes e eventos | Chamadas de API feitas pelo console, CLI ou SDK |
+| Foco | Desempenho e operação | Auditoria, segurança e governança |
+| Age sozinho? | Sim: alarmes notificam via SNS, acionam Auto Scaling e param ou reiniciam instâncias | Não: só registra. O CloudTrail Insights aponta atividade de API incomum |
+| Retenção padrão | Métricas por 15 meses; logs pelo prazo que você definir | Event history de 90 dias; para mais, uma trail grava no S3 |
+| Pista no enunciado | "CPU", "latência", "alarme", "dashboard", "logs da aplicação" | "auditoria", "quem apagou", "rastrear ações do usuário", "chamadas de API" |
+
+- O AWS Config completa o trio: registra como a configuração estava e mudou ([seção 10](#10-investigação-rastro-e-conformidade)).
+- Os dois se integram: uma trail do CloudTrail pode enviar os eventos para o CloudWatch Logs e disparar um alarme, por exemplo quando alguém usa o root.
+
+> [!WARNING]
+> **Pegadinha:** a palavra "log" não decide a questão. Log de **chamada de API** é CloudTrail; log de **aplicação ou de sistema** é CloudWatch Logs. "Disparar uma ação quando a métrica passar do limite" é sempre **CloudWatch**.
 
 ---
 
@@ -1353,7 +1677,7 @@ Os três motores de custo são **computação, armazenamento e transferência de
 | Ferramenta | Pergunta que responde | Olha para | Detalhes cobrados |
 |---|---|---|---|
 | AWS Pricing Calculator | Quanto vai custar o que ainda não construí? | Futuro, estimativa | Gratuito, não exige conta. Monta estimativas por arquitetura |
-| AWS Cost Explorer | Para onde foi meu dinheiro, e para onde vai? | Passado e previsão | Gráficos e filtros por serviço, conta e tag. Histórico de 12 meses ou mais e previsão de até 12 meses. Recomenda Reserved Instances e Savings Plans |
+| AWS Cost Explorer | Para onde foi meu dinheiro, e para onde vai? | Passado e previsão | Gráficos e filtros por serviço, conta e tag. Histórico dos últimos 12 meses (não 15: isso é a retenção de métricas do CloudWatch) e previsão de gastos. Recomenda Reserved Instances e Savings Plans |
 | AWS Budgets | Estou passando do orçamento? | Limites e alertas | Orçamentos de custo, uso, cobertura e utilização de RI e Savings Plans. Alerta por valor real ou previsto. Pode executar ações automáticas |
 | AWS Cost and Usage Report (CUR) | Qual o detalhe máximo do meu gasto? | Dados brutos | O relatório mais granular, por hora e por recurso. Entregue no S3, analisável com Athena, Redshift e QuickSight |
 | AWS Cost Anomaly Detection | Tem gasto fora do padrão? | Anomalias | Machine learning que detecta e avisa sobre gastos incomuns |
@@ -1373,6 +1697,33 @@ Os três motores de custo são **computação, armazenamento e transferência de
 > - Separar custo por departamento: **cost allocation tags**, ou contas separadas no Organizations.
 > - Cost Explorer **mostra**; Budgets **avisa**. É o par que a prova mais troca.
 
+### Cost Explorer x Cost and Usage Report
+
+Os dois partem dos mesmos dados de cobrança. O Cost Explorer entrega a análise pronta no console; o Cost and Usage Report (CUR) entrega o dado bruto para você analisar com outra ferramenta.
+
+```mermaid
+flowchart LR
+    SRC["Dados de cobrança<br/>conta ou organização"]
+    SRC --> CE["<b>AWS Cost Explorer</b><br/>gráficos e filtros prontos<br/>histórico de 12 meses e previsão<br/>recomenda RI e Savings Plans"]
+    SRC --> CUR["<b>Cost and Usage Report</b><br/>arquivo bruto (CSV ou Parquet)<br/>por hora, por recurso, por tag<br/>o mais detalhado que existe"]
+    CE -- console --> O1["Você olha e filtra"]
+    CUR -- "bucket S3" --> O2["Athena, QuickSight<br/>ou Redshift analisam"]
+```
+
+| Aspecto | AWS Cost Explorer | AWS Cost and Usage Report |
+|---|---|---|
+| Formato | Interface com gráficos e filtros no console | Arquivos CSV ou Parquet entregues em um bucket S3 |
+| Granularidade | Mensal ou diária (horária opcional) | Por hora e por recurso, com tags, descontos e preços |
+| Previsão | Sim | Não |
+| Recomendações | Reserved Instances e Savings Plans | Não |
+| Precisa de outra ferramenta? | Não | Sim: Athena, QuickSight ou Redshift |
+| Pista no enunciado | "visualizar", "analisar tendência", "prever gastos" | "mais detalhado", "granular", "por recurso", "exportar dados de cobrança" |
+
+No console mais novo, o CUR fica dentro de **Data Exports**. A prova usa o nome Cost and Usage Report.
+
+> [!WARNING]
+> **Pegadinha:** "o relatório mais detalhado de custo e uso" é **CUR**, mesmo que o Cost Explorer também gere relatórios. Nenhum dos dois manda alerta quando o gasto passa do limite: isso é **AWS Budgets**. "Quantos meses de histórico o Cost Explorer mostra?" são **12 meses**; 15 meses é a retenção do CloudWatch.
+
 ### Outras formas de reduzir custo
 
 - Reserved Instances e Savings Plans para carga estável; Spot para carga interrompível.
@@ -1391,12 +1742,11 @@ Catálogo digital de software de terceiros que roda na AWS: AMIs, SaaS, contêin
 
 ## 24. Planos de suporte
 
-Hoje a AWS vende quatro níveis: **Basic** (gratuito), **Business Support+**, **Enterprise Support** e **Unified Operations**. Developer, Business e Enterprise On-Ramp deixam de existir em 1º de janeiro de 2027.
+A AWS tem quatro planos de suporte: **Basic** (gratuito), **Business Support+**, **Enterprise Support** e **Unified Operations**. Cada plano acima inclui tudo do anterior.
 
-> [!IMPORTANT]
-> A mudança foi anunciada em dezembro de 2025. Não dá para saber qual versão cada questão do banco da prova usa, então estude as duas tabelas. A lógica é a mesma nas duas: quanto mais crítico o ambiente, mais rápido o tempo de resposta e mais próximo o acompanhamento.
+A lógica cobrada é sempre a mesma: quanto mais crítico o ambiente, mais rápido o tempo de resposta e mais próximo o acompanhamento da AWS.
 
-### Planos atuais (2026)
+### Comparativo dos planos
 
 Fonte: página de comparação de planos da AWS, consultada em 7 de outubro de 2026.
 
@@ -1422,32 +1772,22 @@ Fonte: página de comparação de planos da AWS, consultada em 7 de outubro de 2
 
 **O que todos os clientes têm, inclusive no Basic:** atendimento ao cliente 24/7 para conta e cobrança, documentação, whitepapers, AWS re:Post, verificações básicas do Trusted Advisor e o AWS Health Dashboard.
 
-### Planos legados (até 1º de janeiro de 2027)
-
-Fonte da data de encerramento: documentação do AWS Support.
-
-| Item | Developer | Business | Enterprise On-Ramp | Enterprise (antigo) |
-|---|---|---|---|---|
-| Indicado para | Testes e desenvolvimento | Cargas de produção | Cargas críticas de produção | Missão crítica |
-| Acesso ao suporte técnico | E-mail, em horário comercial | 24/7 por telefone, chat e e-mail | 24/7 | 24/7 |
-| Menor tempo de resposta | 12 h (sistema com problema) | 1 h (produção fora do ar) | 30 min (sistema crítico fora do ar) | 15 min (sistema crítico fora do ar) |
-| Trusted Advisor | Básico | Completo | Completo | Completo |
-| TAM | Não | Não | Grupo (pool) de TAMs | TAM designado |
-| Concierge de cobrança | Não | Não | Sim | Sim |
-| Infrastructure Event Management | Não | Taxa adicional | Um por ano | Incluído |
-| Substituído por | Business Support+ | Business Support+ | Enterprise Support | Enterprise Support |
-
 ### O que decorar
 
-- **TAM designado:** só Enterprise Support e Unified Operations. No legado, só Enterprise.
-- **Trusted Advisor completo:** a partir do Business Support+. No legado, a partir do Business.
-- **Suporte técnico 24/7 por telefone:** a partir do Business Support+. No legado, a partir do Business.
-- **Resposta em 15 minutos:** Enterprise. Em 30 minutos: Business Support+ hoje, Enterprise On-Ramp no legado.
-- **Mais barato com suporte técnico:** Business Support+ hoje, Developer no legado.
+- **TAM designado:** só Enterprise Support e Unified Operations.
+- **Suporte técnico 24/7** por telefone, chat e e-mail: a partir do Business Support+. O Basic só tem atendimento de conta e cobrança.
+- **Trusted Advisor completo, AWS Health API e Support API:** a partir do Business Support+.
+- **Sistema crítico fora do ar:** menos de 30 minutos no Business Support+, 15 no Enterprise e 5 no Unified Operations.
+- **Plano pago mais barato:** Business Support+, a partir de US$ 29 por mês.
+- **Security Incident Response incluído:** a partir do Enterprise Support.
+- **Monitoramento 24/7 da carga e engenheiros especialistas de domínio:** só Unified Operations.
 - **Mudar de plano de suporte** é tarefa do root.
 
 > [!WARNING]
-> **Pegadinha:** se as alternativas trouxerem "Business" e "Business Support+" juntas, leia com calma: são planos diferentes. Se a questão citar Developer ou Enterprise On-Ramp, ela é do modelo legado; responda pela tabela legada.
+> **Pegadinha:** "TAM" separa Enterprise e Unified Operations do Business Support+. "Crítico para o negócio" e "15 minutos" apontam para **Enterprise**; "missão crítica" e "5 minutos", para **Unified Operations**. "Produção" com o menor custo é **Business Support+**. Basic não tem suporte técnico.
+
+> [!NOTE]
+> **Na prova:** o Business Support+ já inclui **Architecture Support**, uma orientação contextual sobre como os serviços se encaixam no seu caso, e permite comprar Infrastructure Event Management à parte. Well-Architected Reviews, concierge de cobrança e TAM são do Enterprise. Algumas questões ainda chamam o plano de "Business", sem o +: é o mesmo nível.
 
 ### Outros recursos de ajuda
 
@@ -1457,7 +1797,7 @@ Fonte da data de encerramento: documentação do AWS Support.
 | AWS Knowledge Center | Respostas para as dúvidas mais frequentes dos clientes |
 | Documentação e whitepapers | Referência técnica oficial |
 | AWS Prescriptive Guidance | Estratégias e padrões para migração e modernização |
-| AWS Solutions Library e Architecture Center | Arquiteturas de referência prontas |
+| AWS Solutions Library e Architecture Center | Coleção de recursos técnicos: arquiteturas de referência, guias e boas práticas por domínio. Resposta para "recursos técnicos para construir melhor na AWS" |
 | AWS Skill Builder | Treinamento online |
 | AWS Partner Network (APN) | Parceiros de consultoria (implementam e migram) e de tecnologia (vendem software e hardware) |
 | AWS Professional Services | Consultores da própria AWS, para grandes projetos |
@@ -1510,6 +1850,34 @@ São serviços com uma ou duas questões cada. Basta reconhecer o nome e o uso.
 
 > [!NOTE]
 > **CodeCommit** e **Cloud9** não aceitam novos clientes desde julho de 2024, mas continuam no guia da prova e nos simulados. Reconheça o nome e o uso.
+
+### Família Code: uma etapa cada
+
+Cada serviço Code cuida de uma etapa do caminho entre o commit e a produção. O CodePipeline não faz nenhuma delas: ele só dispara as outras na ordem.
+
+```mermaid
+flowchart LR
+    subgraph CP["AWS CodePipeline: dispara as etapas a cada mudança no código"]
+        CC["<b>1. Origem</b><br/>CodeCommit<br/>repositório Git privado"] --> CB["<b>2. Build e teste (CI)</b><br/>CodeBuild<br/>compila, roda testes,<br/>gera pacote pronto"] --> CD["<b>3. Implantação (CD)</b><br/>CodeDeploy<br/>automatiza o deploy,<br/>sem compilar nem testar"]
+    end
+    GH["GitHub ou Bitbucket<br/>também servem de origem"] --> CC
+    CA["CodeArtifact<br/>pacotes Maven, npm e pip"] <-.-> CB
+    CD --> T["Destino<br/>EC2, Lambda, ECS, on-prem"]
+    style CB stroke-width:3px
+```
+
+CI = integração contínua (CodeBuild). CD = entrega contínua (CodeDeploy). Cloud9 (IDE no navegador) e X-Ray (depuração) não são etapas do pipeline.
+
+| Serviço | Etapa | Pista no enunciado |
+|---|---|---|
+| CodeCommit | Origem: repositório Git privado | "hospedar repositório Git" |
+| CodeBuild | Build e teste: compila, roda testes e gera pacotes prontos para implantar. É o serviço de integração contínua (CI), gerenciado e pago por minuto de build | "compilar código", "rodar testes", "integração contínua" |
+| CodeDeploy | Implantação: automatiza o deploy em EC2, Fargate, Lambda e servidores locais | "automatizar a implantação" |
+| CodePipeline | Orquestra o fluxo inteiro de CI/CD a cada mudança de código, usando os outros por baixo | "pipeline", "automatizar build, teste e deploy a cada commit" |
+| CodeArtifact | Repositório de pacotes de software (Maven, npm, pip) | "armazenar e compartilhar pacotes" |
+
+> [!WARNING]
+> **Pegadinha:** o CodePipeline não compila: ele chama o CodeBuild. O CodeDeploy não testa: só implanta. "Compila, testa e gera pacote pronto para implantar" é sempre **CodeBuild**.
 
 ### Frontend, web e mobile
 
@@ -1673,10 +2041,41 @@ Leia esta seção por último, na véspera. Cada linha é um par em que as duas 
 
 ---
 
+## 27. Revisão do simulado
+
+Os erros do primeiro simulado (70%), com a resposta certa, o motivo de a alternativa errada enganar e a seção onde o assunto está.
+
+| Tema da questão | Resposta certa | Por que a outra opção engana | Seção |
+|---|---|---|---|
+| Fase do CAF que expande pilotos até a escala desejada | Scale | Launch só coloca os pilotos em produção | [3](#3-adoção-da-nuvem-e-migração) |
+| Fase do CAF que demonstra valor incremental e coleta insights | Launch | Scale vem depois, quando o piloto já deu certo | [3](#3-adoção-da-nuvem-e-migração) |
+| Conectar o on-premises à AWS (escolha dois) | Site-to-Site VPN e Direct Connect | Amazon Connect é call center; Transit Gateway é hub e precisa de um link | [17](#17-conectividade-e-entrega-de-conteúdo) |
+| Desconto em qualquer Region, família, tamanho, SO e tenancy | Savings Plans (Compute) | Reserved Instances ficam presas a família e Region | [11](#11-amazon-ec2) |
+| Coleção de recursos técnicos para construir na AWS | AWS Architecture Center | Trusted Advisor verifica a sua conta, não ensina arquitetura | [24](#24-planos-de-suporte) |
+| Hub central para VPCs e redes locais | Transit Gateway | Client VPN liga usuários; peering é um a um | [17](#17-conectividade-e-entrega-de-conteúdo) |
+| Portfólio de recursos pré-aprovados com acesso restrito | Service Catalog | RAM compartilha recursos entre contas, sem catálogo | [7](#7-organização-multi-contas) e [25](#25-outros-serviços-que-aparecem) |
+| Recurso incluído no Business Support+ | Architecture Support | Well-Architected Reviews, concierge e TAM são do Enterprise | [24](#24-planos-de-suporte) |
+| Plano mais barato com Support API | Business Support+ ("Business" em questões antigas) | Basic não tem a API | [24](#24-planos-de-suporte) |
+| Aplicação serverless com banco chave-valor (escolha dois) | Lambda e DynamoDB | RDS é relacional; ECR só guarda imagens | [12](#12-outros-serviços-de-computação) e [18](#18-bancos-de-dados-e-cache) |
+| Consultar dados direto no S3 (escolha dois) | Athena e Redshift Spectrum | ElastiCache é cache em memória | [19](#19-analytics-e-serviços-de-dados) |
+| Integração contínua que compila, testa e empacota | CodeBuild | CodeDeploy só implanta; CodePipeline orquestra | [25](#25-outros-serviços-que-aparecem) |
+| Coletar e processar streams em tempo real | Kinesis Data Streams | Glue é ETL em lote | [19](#19-analytics-e-serviços-de-dados) |
+| Meses de histórico no Cost Explorer | 12 meses | 15 meses é a retenção de métricas do CloudWatch | [23](#23-custos-preços-e-ferramentas) |
+| Estado em que só o EBS é cobrado | Stopped | Terminated apaga o volume raiz e para de cobrar | [11](#11-amazon-ec2) |
+| Recursos do Route 53 (escolha dois) | Resolução DNS e registro de domínio | Filtrar tráfego é WAF; DDoS é Shield | [17](#17-conectividade-e-entrega-de-conteúdo) |
+| Automatizar avaliação de vulnerabilidades | Amazon Inspector | Shield é DDoS; Config avalia configuração | [9](#9-camadas-de-proteção) |
+| Restringir acesso ao S3 servido pelo CloudFront | Origin Access Control | SCP é do Organizations; SNI e sticky sessions são do load balancer | [17](#17-conectividade-e-entrega-de-conteúdo) |
+| Onde fazer upload de certificados SSL (escolha dois) | ACM e IAM | KMS guarda chaves, não certificados | [8](#8-criptografia-chaves-e-segredos) |
+
+> [!TIP]
+> **Dica para "escolha dois":** elimine primeiro as alternativas de outra categoria (call center, cache, registro de imagem, IDE). Quase sempre sobram exatamente as duas certas.
+
+---
+
 ## Fontes
 
 - [Guia oficial do exame AWS Certified Cloud Practitioner (CLF-C02)](https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html)
 - [Comparação de planos do AWS Support](https://aws.amazon.com/premiumsupport/plans/): planos atuais, tempos de resposta e recursos.
-- [Documentação do AWS Support](https://docs.aws.amazon.com/awssupport/latest/user/aws-support-plans.html): encerramento de Developer, Business e Enterprise On-Ramp em 1º de janeiro de 2027.
+- [Documentação do AWS Support](https://docs.aws.amazon.com/awssupport/latest/user/aws-support-plans.html): planos que dão acesso à Support API e ao Trusted Advisor completo.
 - [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html) e [AWS Cloud Adoption Framework](https://docs.aws.amazon.com/whitepapers/latest/overview-aws-cloud-adoption-framework/welcome.html).
 - O restante vem do conteúdo consolidado do guia da CLF-C02 e da documentação dos serviços. Preços, descontos e limites numéricos são aproximados e mudam; a prova cobra a ordem de grandeza e a comparação, não o número exato.
